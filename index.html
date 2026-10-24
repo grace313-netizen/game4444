@@ -1,0 +1,1040 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Petualangan Balap & Kuis PAK Kelas 3 - Indahnya Ciptaan Allah</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter & Press Start 2P for Retro Arcade Feel -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Press+Start+2P&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+            overflow-x: hidden;
+        }
+        .font-game {
+            font-family: 'Press Start 2P', cursive;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4B5563;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #374151;
+        }
+        
+        /* Canvas Styling */
+        #raceCanvas {
+            background: #2d3748;
+            border-radius: 1rem;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+            display: block;
+            width: 100%;
+            max-height: 380px;
+        }
+
+        .btn-bounce {
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+        }
+        .btn-bounce:active {
+            transform: scale(0.96);
+        }
+        
+        /* Pulse Animation */
+        @keyframes pulse-slow {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+        }
+        .animate-pulse-slow {
+            animation: pulse-slow 2s infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col justify-between">
+
+    <!-- HEADER / NAVIGATION -->
+    <header class="bg-slate-800/80 backdrop-blur-md border-b border-slate-700 sticky top-0 z-50 px-4 py-3">
+        <div class="max-w-5xl mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-amber-500 text-slate-900 font-extrabold p-2 rounded-xl text-xl shadow-lg">
+                    <i class="fa-solid fa-car-side"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-base md:text-lg text-amber-400 leading-tight">Balap & Kuis PAK SD</h1>
+                    <p class="text-xs text-slate-400">UPTD SPF SDN Bontoramba - Kelas III</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+                <button id="shareBtn" onclick="copyGameLink()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs md:text-sm font-semibold px-3 py-2 rounded-lg flex items-center gap-1.5 shadow-md btn-bounce">
+                    <i class="fa-solid fa-share-nodes"></i>
+                    <span class="hidden sm:inline">Bagikan Link</span>
+                </button>
+                <button onclick="toggleAudio()" id="audioBtn" class="bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs md:text-sm px-3 py-2 rounded-lg btn-bounce">
+                    <i class="fa-solid fa-volume-high" id="audioIcon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN GAME CONTAINER -->
+    <main class="max-w-4xl w-full mx-auto p-3 sm:p-6 flex-grow flex flex-col justify-center">
+
+        <!-- SCREEN 1: MENU UTAMA -->
+        <section id="menuScreen" class="bg-slate-800 border border-slate-700 rounded-3xl p-6 sm:p-8 text-center shadow-2xl relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-40 h-40 bg-amber-500/10 rounded-full blur-2xl"></div>
+            <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-2xl"></div>
+
+            <span class="inline-block px-3 py-1 bg-amber-500/20 text-amber-300 rounded-full text-xs font-semibold mb-3 border border-amber-500/30">
+                Pendidikan Agama Kristen & Budi Pekerti
+            </span>
+            <h2 class="text-2xl sm:text-4xl font-extrabold text-white mb-2 leading-tight">
+                Bab 1: Indahnya Ciptaan Allah
+            </h2>
+            <p class="text-slate-300 text-sm sm:text-base mb-6 max-w-xl mx-auto">
+                Selesaikan balapan mobil penuh tantangan dan jawab 10 Soal HOTS berbasis Deep Learning untuk membuktikan pemahamanmu!
+            </p>
+
+            <!-- Pilihan Tingkat Kesulitan -->
+            <div class="mb-8">
+                <label class="block text-xs uppercase tracking-wider text-slate-400 font-bold mb-3">Pilih Tingkat Kesulitan Kuis:</label>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-lg mx-auto">
+                    <button onclick="selectLevel('mudah')" id="btn-mudah" class="level-btn p-4 rounded-2xl border-2 border-emerald-500/50 bg-emerald-950/30 hover:bg-emerald-900/50 text-emerald-300 font-bold transition flex flex-col items-center gap-1 btn-bounce">
+                        <i class="fa-solid fa-seedling text-2xl text-emerald-400"></i>
+                        <span>Mudah</span>
+                        <span class="text-[10px] opacity-75 font-normal">10 Soal • Dasar Hari Penciptaan</span>
+                    </button>
+                    <button onclick="selectLevel('sedang')" id="btn-sedang" class="level-btn p-4 rounded-2xl border-2 border-amber-500/50 bg-amber-950/30 hover:bg-amber-900/50 text-amber-300 font-bold transition flex flex-col items-center gap-1 btn-bounce border-2 border-amber-400 bg-amber-900/60 shadow-lg">
+                        <i class="fa-solid fa-tree text-2xl text-amber-400"></i>
+                        <span>Sedang</span>
+                        <span class="text-[10px] opacity-75 font-normal">10 Soal • Flora, Fauna & Manusia</span>
+                    </button>
+                    <button onclick="selectLevel('sulit')" id="btn-sulit" class="level-btn p-4 rounded-2xl border-2 border-rose-500/50 bg-rose-950/30 hover:bg-rose-900/50 text-rose-300 font-bold transition flex flex-col items-center gap-1 btn-bounce">
+                        <i class="fa-solid fa-earth-americas text-2xl text-rose-400"></i>
+                        <span>Sulit</span>
+                        <span class="text-[10px] opacity-75 font-normal">10 Soal • Refleksi HOTS & Aksi</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Form Nama Pemain -->
+            <div class="max-w-md mx-auto mb-6">
+                <input type="text" id="playerName" placeholder="Masukkan Nama Lengkap Saja..." class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-600 text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 text-center font-medium">
+            </div>
+
+            <button onclick="startGame()" class="w-full max-w-md bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-slate-950 font-black text-lg py-4 px-6 rounded-2xl shadow-xl hover:shadow-amber-500/20 btn-bounce animate-pulse-slow">
+                <i class="fa-solid fa-flag-checkered mr-2"></i> MULAI PETUALANGAN
+            </button>
+        </section>
+
+        <!-- SCREEN 2: MINIGAME BALAP MOBIL -->
+        <section id="raceScreen" class="hidden bg-slate-800 border border-slate-700 rounded-3xl p-4 sm:p-6 shadow-2xl relative">
+            <div class="flex justify-between items-center mb-3">
+                <div class="bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-700 text-xs sm:text-sm font-bold text-amber-400">
+                    <i class="fa-solid fa-trophy mr-1"></i> Tantangan Balap #<span id="raceStageNum">1</span>
+                </div>
+                <div class="text-xs text-slate-300">
+                    Kumpulkan <span class="text-emerald-400 font-bold">5 Bintang</span> atau capai garis Finish!
+                </div>
+            </div>
+
+            <!-- Canvas Balapan -->
+            <div class="relative w-full overflow-hidden rounded-xl">
+                <canvas id="raceCanvas" width="600" height="350"></canvas>
+                
+                <!-- Overlay Pesan Game Balap -->
+                <div id="raceOverlay" class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm flex flex-col justify-center items-center text-center p-4">
+                    <h3 id="raceOverlayTitle" class="text-2xl font-bold text-amber-400 mb-2">SIAP BALAPAN?</h3>
+                    <p id="raceOverlayDesc" class="text-sm text-slate-300 mb-4 max-w-xs">Gunakan tombol panah / Sentuh layar kanan-kiri untuk mengemudikan mobil!</p>
+                    <button id="startRaceBtn" onclick="initRace()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold px-6 py-3 rounded-xl shadow-lg btn-bounce">
+                        GAS SEKARANG! <i class="fa-solid fa-play ml-1"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Kontrol Sentuh Smartphone / Smartboard -->
+            <div class="grid grid-cols-2 gap-3 mt-4">
+                <button id="btnLeft" class="bg-slate-700 active:bg-amber-500 active:text-slate-950 text-slate-200 py-4 rounded-xl font-black text-2xl shadow-inner select-none flex justify-center items-center gap-2 border border-slate-600">
+                    <i class="fa-solid fa-arrow-left"></i> KIRI
+                </button>
+                <button id="btnRight" class="bg-slate-700 active:bg-amber-500 active:text-slate-950 text-slate-200 py-4 rounded-xl font-black text-2xl shadow-inner select-none flex justify-center items-center gap-2 border border-slate-600">
+                    KANAN <i class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </section>
+
+        <!-- SCREEN 3: KUIS SOAL HOTS -->
+        <section id="quizScreen" class="hidden bg-slate-800 border border-slate-700 rounded-3xl p-5 sm:p-8 shadow-2xl relative">
+            <!-- Progress Bar & Status Header -->
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-slate-700">
+                <div>
+                    <span class="text-xs font-bold text-amber-400 tracking-wider uppercase" id="quizLevelBadge">Tingkat Sedang</span>
+                    <h3 class="text-lg font-extrabold text-white">Soal No. <span id="currentQuestionNum">1</span> / 10</h3>
+                </div>
+                <div class="text-right">
+                    <span class="text-xs text-slate-400 block">Skor Sementara</span>
+                    <span class="text-xl font-black text-emerald-400" id="currentScore">0</span>
+                </div>
+            </div>
+
+            <!-- Progress Bar Line -->
+            <div class="w-full bg-slate-900 rounded-full h-2.5 mb-6 overflow-hidden">
+                <div id="progressBar" class="bg-gradient-to-r from-amber-500 to-emerald-400 h-2.5 rounded-full transition-all duration-300" style="width: 10%"></div>
+            </div>
+
+            <!-- Kotak Narasi Soal Panjang -->
+            <div class="bg-slate-900/90 border border-slate-700/80 rounded-2xl p-4 sm:p-6 mb-6 shadow-inner">
+                <div class="flex items-start gap-3 mb-2">
+                    <div class="bg-indigo-500/20 text-indigo-400 p-2 rounded-lg text-lg">
+                        <i class="fa-solid fa-book-bible"></i>
+                    </div>
+                    <div class="text-xs text-indigo-300 font-medium uppercase tracking-wider py-1">Studi Kasus / Narasi HOTS</div>
+                </div>
+                <p id="questionNarrative" class="text-slate-200 text-sm sm:text-base leading-relaxed font-normal">
+                    <!-- Narasi Soal diisi via JS -->
+                </p>
+                <div class="mt-4 pt-3 border-t border-slate-800 font-bold text-white text-sm sm:text-base" id="questionText">
+                    <!-- Pertanyaan Utama -->
+                </div>
+            </div>
+
+            <!-- Pilihan Jawaban -->
+            <div id="optionsContainer" class="grid grid-cols-1 gap-3">
+                <!-- Tombol Opsi Jawaban diisi via JS -->
+            </div>
+
+            <!-- Modal / Popup Penjelasan Umpan Balik -->
+            <div id="feedbackModal" class="hidden fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                <div class="bg-slate-800 border border-slate-700 rounded-3xl max-w-md w-full p-6 shadow-2xl text-center transform transition-all">
+                    <div id="feedbackIcon" class="w-16 h-16 rounded-full flex items-center justify-center text-3xl mx-auto mb-3">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    <h4 id="feedbackTitle" class="text-xl font-bold mb-2 text-white">Jawaban Tepat!</h4>
+                    <p id="feedbackText" class="text-xs sm:text-sm text-slate-300 mb-6 leading-relaxed">
+                        <!-- Umpan balik reflektif -->
+                    </p>
+                    <button onclick="nextStageAfterQuiz()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-3 px-4 rounded-xl shadow-lg btn-bounce">
+                        Lanjut ke Balapan Berikutnya <i class="fa-solid fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 4: HASIL SKOR AKHIR & SERTIFIKAT -->
+        <section id="resultScreen" class="hidden bg-slate-800 border border-slate-700 rounded-3xl p-6 sm:p-8 text-center shadow-2xl relative">
+            <div class="mb-4">
+                <span class="inline-block p-4 bg-amber-500/20 text-amber-400 rounded-full text-4xl mb-2">
+                    <i class="fa-solid fa-award"></i>
+                </span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold text-white">HASIL KUIS PEMBELAJARAN</h2>
+                <p class="text-xs text-slate-400">UPTD SPF SDN BONTORAMBA - KELAS III SD</p>
+            </div>
+
+            <!-- Card Nilai Ringkasan -->
+            <div class="bg-slate-900 border border-slate-700 rounded-2xl p-6 mb-6 max-w-md mx-auto relative overflow-hidden">
+                <p class="text-slate-400 text-xs uppercase tracking-wider font-semibold mb-1">Nama Siswa</p>
+                <h3 id="resultName" class="text-xl font-bold text-amber-400 mb-4">Siswa Hebat</h3>
+
+                <div class="grid grid-cols-2 gap-4 border-t border-slate-800 pt-4">
+                    <div>
+                        <span class="text-slate-400 text-xs block">Nilai Akhir (Kuis)</span>
+                        <span id="finalScore" class="text-4xl font-black text-emerald-400">100</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 text-xs block">Predikat / Keterangan</span>
+                        <span id="finalGrade" class="text-lg font-extrabold text-amber-300 mt-2 block">SANGAT BAIK</span>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-3 border-t border-slate-800 text-left text-xs text-slate-300 space-y-1">
+                    <p><i class="fa-solid fa-check-circle text-emerald-400 mr-1"></i> Benar: <span id="correctCount">10</span> Soal</p>
+                    <p><i class="fa-solid fa-layer-group text-indigo-400 mr-1"></i> Tingkat: <span id="levelResult">Sedang</span></p>
+                </div>
+            </div>
+
+            <!-- Evaluasi / Catatan Refleksi -->
+            <div class="bg-amber-950/30 border border-amber-500/30 rounded-xl p-4 text-xs sm:text-sm text-amber-200 mb-6 max-w-md mx-auto text-left">
+                <p class="font-bold mb-1"><i class="fa-solid fa-heart mr-1"></i> Pesan Refleksi Pembelajaran:</p>
+                <p id="reflectionNote">Teruslah bersyukur kepada Allah atas keindahan alam ciptaan-Nya dan jadilah anak yang selalu rajin merawat flora dan fauna di sekitarmu!</p>
+            </div>
+
+            <!-- Tombol Aksi -->
+            <div class="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto">
+                <button onclick="restartGame()" class="flex-1 bg-slate-700 hover:bg-slate-600 text-white font-bold py-3 px-4 rounded-xl btn-bounce">
+                    <i class="fa-solid fa-rotate-right mr-1"></i> Main Lagi
+                </button>
+                <button onclick="copyGameLink()" class="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-4 rounded-xl btn-bounce">
+                    <i class="fa-solid fa-share-nodes mr-1"></i> Salin Link Game
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-slate-950 py-3 text-center text-xs text-slate-500 border-t border-slate-800">
+        <p>© 2026 UPTD SPF SDN BONTORAMBA • PAK Kelas III • Kurikulum Merdeka (Deep Learning)</p>
+    </footer>
+
+    <!-- AUDIO EFFECTS (Web Audio API Synthesizer) -->
+    <script>
+        // Audio Synthesizer (No External Files Required)
+        let audioCtx = null;
+        let soundEnabled = true;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'coin') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(800, now);
+                    osc.frequency.exponentialRampToValueAtTime(1200, now + 0.1);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+                    osc.start(now);
+                    osc.stop(now + 0.1);
+                } else if (type === 'correct') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
+                    osc.frequency.setValueAtTime(783.99, now + 0.2); // G5
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(250, now);
+                    osc.frequency.setValueAtTime(150, now + 0.15);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'engine') {
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(100, now);
+                    osc.frequency.linearRampToValueAtTime(180, now + 0.2);
+                    gain.gain.setValueAtTime(0.05, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                    osc.start(now);
+                    osc.stop(now + 0.2);
+                }
+            } catch(e) { console.log(e); }
+        }
+
+        function toggleAudio() {
+            soundEnabled = !soundEnabled;
+            const icon = document.getElementById('audioIcon');
+            if (soundEnabled) {
+                icon.className = "fa-solid fa-volume-high";
+            } else {
+                icon.className = "fa-solid fa-volume-xmark";
+            }
+        }
+
+        // SALIN LINK GAME UNTUK PAPAN INTERAKTIF / HP
+        function copyGameLink() {
+            const tempInput = document.createElement("input");
+            tempInput.value = window.location.href;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            document.execCommand("copy");
+            document.body.removeChild(tempInput);
+            
+            alert("Link Game Berhasil Disalin! Anda dapat membuka link ini di Papan Interaktif (Smartboard) atau HP siswa.");
+        }
+    </script>
+
+    <!-- GAME DATA & LOGIC -->
+    <script>
+        // BANK SOAL HOTS BERBASIS RPP DEEP LEARNING PAK KELAS 3 SD
+        const quizDatabase = {
+            mudah: [
+                {
+                    narrative: "Ester berdiri di halaman sekolah UPTD SPF SDN Bontoramba saat pagi hari. Ia merasakan hangatnya sinar matahari dan melihat terang yang membuat seluruh bunga di taman terlihat indah.",
+                    question: "Berdasarkan Kitab Kejadian 1, pada hari ke berapakah Allah menciptakan 'Terang' sehingga dunia tidak lagi gelap gulita?",
+                    options: ["Hari Pertama", "Hari Kedua", "Hari Ketiga", "Hari Keempat"],
+                    answer: 0,
+                    explanation: "Benar! Pada Hari Pertama, Allah berfirman 'Jadilah terang' lalu terang itu jadi, memisahkan terang dari gelap (Kejadian 1:3-5)."
+                },
+                {
+                    narrative: "Saat perjalanan pulang sekolah, Samuel melihat langit biru yang sangat membentang luas menahan awan-awan di udara.",
+                    question: "Cakrawala atau langit yang membentang rapi diciptakan Allah pada hari...",
+                    options: ["Hari Pertama", "Hari Kedua", "Hari Ketiga", "Hari Kelima"],
+                    answer: 1,
+                    explanation: "Tepat! Allah menciptakan cakrawala (langit) pada Hari Kedua untuk memisahkan air di bawah dan air di atas."
+                },
+                {
+                    narrative: "Ibu Guru Grace mengajak siswa Kelas III mengamati rumput hijau, pohon mangga, dan bunga mawar warna-warni di taman sekolah.",
+                    question: "Daratan, lautan, serta tumbuh-tumbuhan diciptakan oleh Allah pada hari ke...",
+                    options: ["Hari Kedua", "Hari Ketiga", "Hari Keempat", "Hari Keenam"],
+                    answer: 1,
+                    explanation: "Hebat! Pada Hari Ketiga, Allah mengumpulkan air menjadi laut, memunculkan daratan, dan menumbuhkan tunas-tunas tumbuhan."
+                },
+                {
+                    narrative: "Pada malam hari, Budi melihat bulan yang bersinar terang dan bintang-bintang yang bertebaran indah di langit gelap.",
+                    question: "Benda-benda penerang di langit seperti matahari, bulan, dan bintang diciptakan Allah pada hari...",
+                    options: ["Hari Ketiga", "Hari Keempat", "Hari Kelima", "Hari Keenam"],
+                    answer: 1,
+                    explanation: "Luar biasa! Allah merancang benda penerang pada Hari Keempat untuk menentukan musim, hari, dan tahun."
+                },
+                {
+                    narrative: "Ketika pergi berwisata ke Pantai Losari Makassar, Maria melihat burung camar terbang di udara dan ikan-ikan berenang di laut.",
+                    question: "Burung-burung di udara dan segala jenis ikan di dalam air diciptakan Allah pada hari ke...",
+                    options: ["Hari Keempat", "Hari Kelima", "Hari Keenam", "Hari Pertama"],
+                    answer: 1,
+                    explanation: "Benar sekali! Allah menciptakan hewan air dan burung di udara pada Hari Kelima."
+                },
+                {
+                    narrative: "Pak Fatra menjelaskan bahwa Allah menciptakan hewan-hewan darat seperti sapi, kucing, dan juga manusia.",
+                    question: "Hewan darat dan Manusia diciptakan oleh Allah pada hari yang sama, yaitu hari ke...",
+                    options: ["Hari Kelima", "Hari Keenam", "Hari Ketujuh", "Hari Keempat"],
+                    answer: 1,
+                    explanation: "Tepat! Allah menciptakan semua hewan darat dan manusia pada Hari Keenam puncak karya ciptaan-Nya."
+                },
+                {
+                    narrative: "Setelah selesai menciptakan seluruh alam semesta beserta isinya dalam enam hari, Allah melihat semuanya itu...",
+                    question: "Bagaimanakah penilaian Allah terhadap seluruh karya ciptaan-Nya dalam Kejadian 1?",
+                    options: ["Biasa saja", "Sangat Baik", "Cukup Baik", "Kurang Sempurna"],
+                    answer: 1,
+                    explanation: "Ya! Alkitab mencatat bahwa Allah melihat segala yang dibuat-Nya itu 'Sangat Baik'."
+                },
+                {
+                    narrative: "Tuhan menciptakan siang hari dengan matahari dan malam hari dengan bulan secara bergantian dan teratur.",
+                    question: "Keteraturan alam ini membuktikan bahwa Allah kita adalah Allah yang...",
+                    options: ["Maha Pencipta yang Agung dan Teratur", "Suka Berubah-ubah", "Kurang Peduli", "Membiarkan Alam Bekerja Sendiri"],
+                    answer: 0,
+                    explanation: "Sangat tepat! Keteraturan alam menunjukkan keagungan dan perencanaan Allah yang sempurna."
+                },
+                {
+                    narrative: "Manusia diciptakan secara khusus dan berbeda dari ciptaan lainnya karena dibuat menurut...",
+                    question: "Apakah keistimewaan manusia saat diciptakan oleh Allah?",
+                    options: ["Rupa dan Gambar Allah (Imago Dei)", "Bentuk hewan tanah", "Bayangan malaikat", "Benda penerang"],
+                    answer: 0,
+                    explanation: "Benar! Manusia diciptakan menurut Rupa dan Gambar Allah (Imago Dei)."
+                },
+                {
+                    narrative: "Tuhan Yesus memberikan kita mata untuk melihat pemandangan indah dan telinga untuk mendengar kicauan burung.",
+                    question: "Sikap utama kita saat menikmati keindahan ciptaan Allah adalah...",
+                    options: ["Bersyukur dan Memuji Tuhan", "Pamer kepada teman", "Apatis dan acuh tak acuh", "Mengaku buatan manusia"],
+                    answer: 0,
+                    explanation: "Luar biasa! Rasa syukur adalah wujud ungkapan iman kita atas kebaikan Pencipta."
+                }
+            ],
+            sedang: [
+                {
+                    narrative: "Di sekolah, terdapat tanaman bunga mawar yang indah, kucing liar yang ramah, serta siswa laki-laki dan perempuan yang sedang belajar.",
+                    question: "Manakah kelompok di bawah ini yang seluruhnya tergolong sebagai 'Flora' ciptaan Allah?",
+                    options: ["Pohon Pohon Mangga, Bunga Mawar, dan Rumput", "Kucing, Burung Pipit, dan Ikan Gurami", "Anak Laki-laki dan Perempuan", "Batu, Air, dan Udara"],
+                    answer: 0,
+                    explanation: "Tepat! Flora merujuk pada segala jenis tumbuh-tumbuhan ciptaan Allah."
+                },
+                {
+                    narrative: "Daniel mengamati burung gereja yang terbang hinggap di pohon dan kelinci yang melompat di rumput.",
+                    question: "Burung dan kelinci merupakan ciptaan Allah yang masuk ke dalam kelompok...",
+                    options: ["Flora", "Fauna", "Manusia", "Benda Mati"],
+                    answer: 1,
+                    explanation: "Benar! Fauna adalah sebutan untuk dunia hewan/binatang ciptaan Allah."
+                },
+                {
+                    narrative: "Allah menciptakan manusia laki-laki dan perempuan dari pelbagai suku (Toraja, Makassar, Bugis, Jawa) dengan warna kulit yang beragam.",
+                    question: "Apakah tujuan Allah menciptakan keberagaman jenis kelamin dan suku pada manusia?",
+                    options: ["Agar manusia saling memusuhi", "Agar manusia saling melengkapi dan mengasihi", "Supaya ada yang merasa paling hebat", "Untuk dibeda-bedakan derajatnya"],
+                    answer: 1,
+                    explanation: "Sangat baik! Keberagaman adalah kekayaan karya Allah agar manusia saling melengkapi dan mengasihi."
+                },
+                {
+                    narrative: "Ani melihat bunga hias milik ibunya di halaman rumah tampak terkulai layu karena terik matahari musim kemarau.",
+                    question: "Tindakan nyata Ani yang mencerminkan tanggung jawab merawat Flora ciptaan Allah adalah...",
+                    options: ["Menyiram tanaman dengan air secara teratur", "Memetik semua daunnya yang layu", "Membiarkannya kering dan mati", "Memindahkannya ke tempat yang paling panas"],
+                    answer: 0,
+                    explanation: "Tepat sekali! Menyiram tanaman adalah tindakan nyata merawat flora ciptaan Tuhan."
+                },
+                {
+                    narrative: "Di halaman sekolah Bontoramba, ada seekor anak kucing liar yang kelaparan dan mengeong terus-menerus.",
+                    question: "Sikap anak Kristen yang memiliki kasih terhadap Fauna ciptaan Allah adalah...",
+                    options: ["Melemparnya dengan batu sampai pergi", "Memberinya sisa makanan dengan kasih sayang", "Menguncinya di dalam ruang gelap", "Pura-pura tidak melihatnya"],
+                    answer: 1,
+                    explanation: "Luar biasa! Menyayangi hewan peliharaan/fauna adalah wujud rasa syukur kita kepada Sang Pencipta."
+                },
+                {
+                    narrative: "Alkitab menyatakan dalam Kejadian 1:28 bahwa manusia diberi kuasa atas ikan-ikan, burung-burung, dan segala hewan.",
+                    question: "Makna kata 'menguasai' dan 'merawat' alam ciptaan bagi manusia adalah...",
+                    options: ["Merusak dan menghabiskannya demi uang", "Menjaga, mengolah, dan melestarikannya dengan bijak", "Membakar hutan sesuka hati", "Memburu semua hewan sampai punah"],
+                    answer: 1,
+                    explanation: "Benar! Manusia dipanggil menjadi pengelola (steward) yang bertanggung jawab atas bumi."
+                },
+                {
+                    narrative: "Setiap pagi, udara di sekitar pegunungan terasa sangat segar karena banyaknya pohon rindang yang menghasilkan oksigen.",
+                    question: "Apakah hubungan antara keberadaan Flora (pohon) dengan kelangsungan hidup manusia?",
+                    options: ["Pohon menyediakan udara bersih (oksigen) bagi manusia", "Pohon tidak ada gunanya bagi manusia", "Pohon hanya membuat halaman kotor", "Pohon menyerap seluruh udara bersih"],
+                    answer: 0,
+                    explanation: "Hebat! Pohon ciptaan Allah sangat penting untuk menyediakan oksigen dan menjaga keseimbangan alam."
+                },
+                {
+                    narrative: "Siswa kelas III membuat poster bertema 'Aku Merawat Ciptaan Allah' pada Pertemuan Ke-2 pelajaran PAK.",
+                    question: "Manakah contoh slogan aksi nyata yang sesuai untuk poster kepedulian lingkungan?",
+                    options: ["'Buanglah Sampah Sembarangan!'", " 'Lestarikan Pohon, Sayangi Hewan Ciptaan Tuhan!'", "'Coret-coretlah Pohon di Taman!'", "'Jangan Pernah Menyiram Bunga!'"],
+                    answer: 1,
+                    explanation: "Tepat! Slogan ajakan melestarikan flora dan fauna mencerminkan komitmen anak Kristen."
+                },
+                {
+                    narrative: "Tuhan memberikan akal budi dan hati nurani kepada manusia yang tidak dimiliki oleh hewan dan tumbuhan.",
+                    question: "Akal budi yang diberikan Allah kepada kita sebaiknya digunakan untuk...",
+                    options: ["Memikirkan cara merusak alam", "Merancang kebaikan dan cara menjaga kelestarian alam", "Mencari pertengkaran dengan teman", "Malas belajar"],
+                    answer: 1,
+                    explanation: "Benar! Akal budi adalah karunia Allah agar manusia bertindak bijaksana."
+                },
+                {
+                    narrative: "Saat berada di taman sekolah, David menemukan sarang burung yang jatuh dari pohon.",
+                    question: "Tindakan reflektif David yang menunjukkan rasa hormat pada kehidupan ciptaan Allah adalah...",
+                    options: ["Menginjak sarang burung tersebut", "Mengembalikan sarang dan anak burung ke dahan yang aman", "Membawa pulang untuk diadu", "Membiarkannya dimakan kucing"],
+                    answer: 1,
+                    explanation: "Luar biasa! Menyelamatkan hewan kecil adalah bentuk kepedulian nyata."
+                }
+            ],
+            sulit: [
+                {
+                    narrative: "Di sebuah desa dekat hutan, banyak orang menebang pohon secara liar tanpa menanamnya kembali. Ketika hujan deras datang, terjadi bencana tanah longsor dan banjir bandang.",
+                    question: "Berdasarkan pemahaman Kejadian 1, mengapa bencana alam tersebut bisa terjadi akibat ulah manusia?",
+                    options: ["Karena Allah lupa menjaga desa tersebut", "Karena manusia melanggar tugas merawat alam dan merusak keseimbangan ciptaan", "Karena pohon-pohon memang harus ditebang habis", "Karena air hujan terlalu banyak"],
+                    answer: 1,
+                    explanation: "Analisis Tepat! Kerusakan alam terjadi karena kelalaian manusia dalam menjalankan amanat merawat bumi."
+                },
+                {
+                    narrative: "Allah menciptakan terang pada hari ke-1 dan matahari pada hari ke-4. Seorang siswa bertanya mengapa terang bisa ada sebelum matahari diciptakan.",
+                    question: "Manakah penjelasan teologis HOTS yang paling tepat mengenai hal tersebut?",
+                    options: ["Allah adalah sumber terang sejati yang tidak bergantung pada benda penerang fisik", "Itu adalah kesalahan urutan dalam cerita", "Matahari sebenarnya sudah dibuat di hari pertama tapi tersembunyi", "Terang hari pertama buatan manusia"],
+                    answer: 0,
+                    explanation: "Hebat! Allah sendiri adalah sumber terang utama, dan benda penerang diciptakan sebagai penanda waktu bagi bumi."
+                },
+                {
+                    narrative: "Banyak sungai di kota-kota besar dipenuhi sampah plastik dan limbah pabrik sehingga ikan-ikan mati dan air menjadi berbau busuk.",
+                    question: "Jika kamu menjadi bagian dari komunitas anak Kristen, solusi aksi nyata paling tepat untuk mengatasi hal ini adalah...",
+                    options: ["Membiarkan sungai semakin kotor", "Mulai dari diri sendiri tidak membuang sampah ke sungai & ikut gerakan bersih lingkungan", "Menyalahkan pemerintah tanpa melakukan apapun", "Menangkap semua ikan yang tersisa"],
+                    answer: 1,
+                    explanation: "Luar biasa! Aksi nyata perubahan dimulai dari disiplin diri sendiri dan peduli lingkungan."
+                },
+                {
+                    narrative: "Roni sering diejek oleh teman-temannya karena memiliki warna kulit yang berbeda dan rambut keriting.",
+                    question: "Bagaimanakah sudut pandang iman Kristen berdasarkan konsep 'Imago Dei' menilai tindakan mengejek fisik sesama manusia?",
+                    options: ["Boleh dilakukan jika hanya untuk bercanda", "Salah, karena mengejek manusia sama dengan menghina Allah Sang Pencipta-Nya", "Hal biasa dalam pertemanan", "Sesuai dengan perintah Alkitab"],
+                    answer: 1,
+                    explanation: "Tepat Sekali! Setiap manusia diciptakan mulia menurut Rupa Allah, sehingga menghina sesama berarti menghina Karya Allah."
+                },
+                {
+                    narrative: "Sebuah perusahaan ingin meratakan taman bunga sekolah Bontoramba untuk dijadikan tempat parkir kendaraan bermotor.",
+                    question: "Dampak buruk jangka panjang bagi murid-murid jika area hijau taman sekolah dihilangkan adalah...",
+                    options: ["Udara sekolah menjadi panas, gersang, dan kehilangan media belajar alam", "Sekolah menjadi lebih indah dan bersih", "Siswa menjadi lebih sehat", "Tidak ada dampak apapun"],
+                    answer: 0,
+                    explanation: "Benar! Hilangnya area hijau mengurangi kualitas udara segar dan merusak keindahan ekosistem sekolah."
+                },
+                {
+                    narrative: "Perhatikan tindakan berikut:\n(1) Menghemat penggunaan air bersih\n(2) Menebang pohon sembarangan\n(3) Menanam bibit pohon di halaman\n(4) Membuang sampah ke laut",
+                    question: "Sikap yang mencerminkan pemahaman reflektif Deep Learning PAK dalam merawat ciptaan Allah ditunjukkan oleh nomor...",
+                    options: ["(1) dan (2)", "(1) dan (3)", "(2) dan (4)", "(3) dan (4)"],
+                    answer: 1,
+                    explanation: "Sangat Tepat! Menghemat air dan menanam pohon adalah contoh nyata pelestarian alam."
+                },
+                {
+                    narrative: "Grace membaca Kejadian 1:31 di mana Allah menyatakan seluruh ciptaan 'Sangat Baik'. Namun sekarang banyak hewan langka seperti Cenderawasih yang hampir punah karena diburu.",
+                    question: "Apakah pesan moral Alkitab bagi kita terhadap ancaman kepunahan hewan langka di Indonesia?",
+                    options: ["Mendukung perburuan liar demi uang", "Melindungi dan tidak membeli produk dari hewan yang dilindungi", "Membiarkan hewan langka punah", "Mengurung semua hewan di rumah"],
+                    answer: 1,
+                    explanation: "Hebat! Menjaga keanekaragaman fauna adalah bagian dari menjaga keutuhan ciptaan Allah."
+                },
+                {
+                    narrative: "Tuhan menciptakan laut yang luas beserta terumbu karang yang indah. Namun sebagian nelayan menggunakan bom ikan yang merusak terumbu karang.",
+                    question: "Mengapa penggunaan bom ikan sangat bertentangan dengan firman Allah?",
+                    options: ["Karena merusak rumah ikan dan menghancurkan ekosistem laut yang diciptakan Allah", "Karena bom ikan harganya mahal", "Karena membuat ikan menjadi bau", "Karena air laut bisa habis"],
+                    answer: 0,
+                    explanation: "Analisis tepat! Penggunaan bom merusak rumah terumbu karang dan memusnahkan benih ikan."
+                },
+                {
+                    narrative: "Di kelas, guru PAK meminta setiap murid menuliskan satu janji komitmen diri untuk menjaga kebersihan dan keindahan kelas.",
+                    question: "Manakah kalimat komitmen yang menunjukkan kesadaran iman paling mendalam?",
+                    options: ["'Saya akan piket kelas hanya kalau dilihat oleh guru.'", "'Sebagai bentuk syukur pada Allah, saya akan menjaga kebersihan meja dan taman kelas setiap hari.'", "'Saya menyerahkan tugas kebersihan pada petugas kebersihan sekolah.'", "'Saya tidak peduli dengan sampah di kelas.'"],
+                    answer: 1,
+                    explanation: "Sangat baik! Tanggung jawab iman dilakukan dengan penuh kesadaran tulus tanpa harus diawasi."
+                },
+                {
+                    narrative: "Tuhan menciptakan manusia sebagai pria dan wanita untuk saling melengkapi dan bekerja sama mengelola bumi.",
+                    question: "Sikap kerja sama yang benar antara siswa laki-laki dan perempuan di kelas III SDN Bontoramba adalah...",
+                    options: ["Saling menghargai, bekerjasama membersihkan taman, dan belajar bersama tanpa membeda-bedakan", "Siswa laki-laki tidak mau berteman dengan perempuan", "Membagi kelompok hanya berdasarkan gender", "Saling mengejek kekurangan teman"],
+                    answer: 0,
+                    explanation: "Sempurna! Kerjasama yang harmonis mencerminkan indahnya keragaman ciptaan Allah."
+                }
+            ]
+        };
+
+        // STATE GAME
+        let currentLevel = 'sedang';
+        let playerName = '';
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let correctAnswersCount = 0;
+        let starCollectedInRace = 0;
+
+        // SELEKSI LEVEL
+        function selectLevel(level) {
+            currentLevel = level;
+            document.querySelectorAll('.level-btn').forEach(btn => {
+                btn.classList.remove('border-2', 'border-amber-400', 'bg-amber-900/60', 'shadow-lg');
+            });
+            const activeBtn = document.getElementById(`btn-${level}`);
+            activeBtn.classList.add('border-2', 'border-amber-400', 'bg-amber-900/60', 'shadow-lg');
+        }
+
+        // START GAME
+        function startGame() {
+            const nameInput = document.getElementById('playerName').value.trim();
+            playerName = nameInput || 'Siswa SDN Bontoramba';
+            
+            // Reset State
+            currentQuestionIndex = 0;
+            score = 0;
+            correctAnswersCount = 0;
+
+            // Pindah Ke Screen Balapan Pertama
+            showScreen('raceScreen');
+            setupRaceStage();
+        }
+
+        // NAVIGATION SCREEN UTILITY
+        function showScreen(screenId) {
+            ['menuScreen', 'raceScreen', 'quizScreen', 'resultScreen'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(screenId).classList.remove('hidden');
+        }
+
+        // ========================================================
+        // CANVAS MINI GAME BALAP MOBIL (STREET RACE)
+        // ========================================================
+        const canvas = document.getElementById('raceCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let carX = 270;
+        let carY = 270;
+        const carWidth = 40;
+        const carHeight = 70;
+        let carSpeed = 6;
+
+        let stars = [];
+        let obstacles = [];
+        let gameLoopId = null;
+        let isRacing = false;
+        let roadOffset = 0;
+
+        // Input Controls
+        let moveLeft = false;
+        let moveRight = false;
+
+        // Button Touch Event Listeners
+        const btnLeft = document.getElementById('btnLeft');
+        const btnRight = document.getElementById('btnRight');
+
+        btnLeft.addEventListener('mousedown', () => moveLeft = true);
+        btnLeft.addEventListener('mouseup', () => moveLeft = false);
+        btnLeft.addEventListener('touchstart', (e) => { e.preventDefault(); moveLeft = true; });
+        btnLeft.addEventListener('touchend', (e) => { e.preventDefault(); moveLeft = false; });
+
+        btnRight.addEventListener('mousedown', () => moveRight = true);
+        btnRight.addEventListener('mouseup', () => moveRight = false);
+        btnRight.addEventListener('touchstart', (e) => { e.preventDefault(); moveRight = true; });
+        btnRight.addEventListener('touchend', (e) => { e.preventDefault(); moveRight = false; });
+
+        // Keyboard Controls
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'a') moveLeft = true;
+            if (e.key === 'ArrowRight' || e.key === 'd') moveRight = true;
+        });
+        window.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowLeft' || e.key === 'a') moveLeft = false;
+            if (e.key === 'ArrowRight' || e.key === 'd') moveRight = false;
+        });
+
+        function setupRaceStage() {
+            document.getElementById('raceStageNum').innerText = currentQuestionIndex + 1;
+            document.getElementById('raceOverlay').classList.remove('hidden');
+            document.getElementById('raceOverlayTitle').innerText = `BALAPAN TAHAP #${currentQuestionIndex + 1}`;
+            document.getElementById('raceOverlayDesc').innerText = "Kumpulkan minimal 3 Bintang untuk menambah bonus sebelum menjawab soal kuis!";
+            
+            // Reset Car & Objects
+            carX = canvas.width / 2 - carWidth / 2;
+            stars = [];
+            obstacles = [];
+            starCollectedInRace = 0;
+            isRacing = false;
+
+            drawStaticRace();
+        }
+
+        function initRace() {
+            document.getElementById('raceOverlay').classList.add('hidden');
+            isRacing = true;
+            
+            // Spawn initial stars & obstacles
+            for(let i=0; i<4; i++) {
+                spawnStar(-i * 180);
+                if(i % 2 === 0) spawnObstacle(-i * 250 - 100);
+            }
+
+            if (gameLoopId) cancelAnimationFrame(gameLoopId);
+            raceLoop();
+        }
+
+        function spawnStar(yPos) {
+            stars.push({
+                x: 120 + Math.random() * (canvas.width - 240),
+                y: yPos || -50,
+                size: 15,
+                collected: false
+            });
+        }
+
+        function spawnObstacle(yPos) {
+            obstacles.push({
+                x: 120 + Math.random() * (canvas.width - 240),
+                y: yPos || -100,
+                width: 45,
+                height: 45
+            });
+        }
+
+        function raceLoop() {
+            if (!isRacing) return;
+
+            updateRace();
+            drawRace();
+
+            // Cek kondisi selesai balapan (dikumpulkan 5 bintang atau waktu melintas)
+            if (starCollectedInRace >= 5) {
+                isRacing = false;
+                playSound('correct');
+                setTimeout(() => {
+                    alert(`Hebat! Kamu berhasil mengumpulkan ${starCollectedInRace} Bintang Bonus di Balapan! Saatnya menjawab Kuis.`);
+                    startQuizStage();
+                }, 300);
+                return;
+            }
+
+            gameLoopId = requestAnimationFrame(raceLoop);
+        }
+
+        function updateRace() {
+            // Gerakan Jalan
+            roadOffset = (roadOffset + 5) % 40;
+
+            // Movement Car
+            if (moveLeft && carX > 90) carX -= carSpeed;
+            if (moveRight && carX < canvas.width - 90 - carWidth) carX += carSpeed;
+
+            // Sound engine effect
+            if (Math.random() < 0.05) playSound('engine');
+
+            // Update Stars
+            stars.forEach((star) => {
+                star.y += 4;
+                // Collision Detection Car <-> Star
+                if (!star.collected && 
+                    carX < star.x + star.size &&
+                    carX + carWidth > star.x - star.size &&
+                    carY < star.y + star.size &&
+                    carY + carHeight > star.y - star.size) {
+                    
+                    star.collected = true;
+                    starCollectedInRace++;
+                    score += 5; // Bonus point
+                    playSound('coin');
+                }
+            });
+
+            // Respawn Stars
+            stars = stars.filter(s => s.y < canvas.height + 50);
+            if (stars.length < 3) {
+                spawnStar(-100);
+            }
+
+            // Update Obstacles
+            obstacles.forEach((obs) => {
+                obs.y += 4.5;
+                // Collision Car <-> Obstacle
+                if (carX < obs.x + obs.width &&
+                    carX + carWidth > obs.x &&
+                    carY < obs.y + obs.height &&
+                    carY + carHeight > obs.y) {
+                    
+                    // Nabrak Rintangan: Kurangi sedikit kecepatan / efek
+                    obs.y = canvas.height + 100; // Reset
+                    playSound('wrong');
+                }
+            });
+
+            // Respawn Obstacles
+            obstacles = obstacles.filter(o => o.y < canvas.height + 50);
+            if (obstacles.length < 2) {
+                spawnObstacle(-150);
+            }
+        }
+
+        function drawRace() {
+            // Background Rumput
+            ctx.fillStyle = '#1e3a1e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Jalan Raya Asphalt
+            const roadWidth = 320;
+            const roadX = (canvas.width - roadWidth) / 2;
+            ctx.fillStyle = '#334155';
+            ctx.fillRect(roadX, 0, roadWidth, canvas.height);
+
+            // Pembatas Jalan (Sisi Merah Putih)
+            ctx.fillStyle = '#ef4444';
+            ctx.fillRect(roadX - 10, 0, 10, canvas.height);
+            ctx.fillRect(roadX + roadWidth, 0, 10, canvas.height);
+
+            // Garis Putih Putus-Putus di Tengah Jalan
+            ctx.strokeStyle = '#f8fafc';
+            ctx.lineWidth = 4;
+            ctx.setLineDash([20, 20]);
+            ctx.lineDashOffset = -roadOffset;
+            ctx.beginPath();
+            ctx.moveTo(canvas.width / 2, 0);
+            ctx.lineTo(canvas.width / 2, canvas.height);
+            ctx.stroke();
+            ctx.setLineDash([]); // Reset line dash
+
+            // Draw Stars (Bintang Bonus)
+            stars.forEach(star => {
+                if (!star.collected) {
+                    ctx.fillStyle = '#f59e0b';
+                    ctx.beginPath();
+                    ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 2;
+                    ctx.stroke();
+                }
+            });
+
+            // Draw Obstacles (Rintangan Batu/Barel)
+            obstacles.forEach(obs => {
+                ctx.fillStyle = '#dc2626';
+                ctx.beginPath();
+                ctx.roundRect(obs.x, obs.y, obs.width, obs.height, 8);
+                ctx.fill();
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 12px Inter';
+                ctx.fillText('AVOID', obs.x + 4, obs.y + 26);
+            });
+
+            // Draw Player Car (Mobil Balap Sport)
+            // Body Mobil
+            ctx.fillStyle = '#3b82f6';
+            ctx.beginPath();
+            ctx.roundRect(carX, carY, carWidth, carHeight, 10);
+            ctx.fill();
+
+            // Atap & Kaca Mobil
+            ctx.fillStyle = '#1e293b';
+            ctx.fillRect(carX + 5, carY + 15, carWidth - 10, 25);
+
+            // Lampu Depan Mobil
+            ctx.fillStyle = '#fef08a';
+            ctx.fillRect(carX + 4, carY + 2, 8, 6);
+            ctx.fillRect(carX + carWidth - 12, carY + 2, 8, 6);
+
+            // Roda Mobil
+            ctx.fillStyle = '#0f172a';
+            ctx.fillRect(carX - 4, carY + 8, 5, 14);
+            ctx.fillRect(carX + carWidth - 1, carY + 8, 5, 14);
+            ctx.fillRect(carX - 4, carY + carHeight - 22, 5, 14);
+            ctx.fillRect(carX + carWidth - 1, carY + carHeight - 22, 5, 14);
+
+            // HUD Bintang Terkumpul
+            ctx.fillStyle = 'rgba(15, 23, 42, 0.7)';
+            ctx.fillRect(15, 15, 160, 35);
+            ctx.fillStyle = '#fbbf24';
+            ctx.font = 'bold 14px Inter';
+            ctx.fillText(`★ Bintang: ${starCollectedInRace} / 5`, 25, 38);
+        }
+
+        function drawStaticRace() {
+            drawRace();
+        }
+
+
+        // ========================================================
+        // KUIS SOAL HOTS & EVALUASI
+        // ========================================================
+        function startQuizStage() {
+            showScreen('quizScreen');
+            
+            const currentQuestions = quizDatabase[currentLevel];
+            const qData = currentQuestions[currentQuestionIndex];
+
+            // Update UI Header Kuis
+            document.getElementById('quizLevelBadge').innerText = `Tingkat ${currentLevel.toUpperCase()}`;
+            document.getElementById('currentQuestionNum').innerText = currentQuestionIndex + 1;
+            document.getElementById('currentScore').innerText = score;
+
+            // Progress Bar
+            const progressPct = ((currentQuestionIndex + 1) / 10) * 100;
+            document.getElementById('progressBar').style.width = `${progressPct}%`;
+
+            // Render Narasi & Soal
+            document.getElementById('questionNarrative').innerText = qData.narrative;
+            document.getElementById('questionText').innerText = qData.question;
+
+            // Render Opsi Jawaban
+            const container = document.getElementById('optionsContainer');
+            container.innerHTML = '';
+
+            const optionLabels = ['A', 'B', 'C', 'D'];
+            qData.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 rounded-xl bg-slate-900 hover:bg-slate-700/80 border border-slate-700 text-slate-100 font-medium transition flex items-center gap-3 btn-bounce";
+                btn.onclick = () => checkAnswer(idx);
+                btn.innerHTML = `
+                    <span class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/30 font-bold flex items-center justify-center shrink-0">${optionLabels[idx]}</span>
+                    <span class="text-xs sm:text-sm">${opt}</span>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIdx) {
+            const currentQuestions = quizDatabase[currentLevel];
+            const qData = currentQuestions[currentQuestionIndex];
+
+            const isCorrect = (selectedIdx === qData.answer);
+
+            const modal = document.getElementById('feedbackModal');
+            const icon = document.getElementById('feedbackIcon');
+            const title = document.getElementById('feedbackTitle');
+            const text = document.getElementById('feedbackText');
+
+            if (isCorrect) {
+                playSound('correct');
+                score += 10;
+                correctAnswersCount++;
+
+                icon.className = "w-16 h-16 rounded-full flex items-center justify-center text-3xl mx-auto mb-3 bg-emerald-500/20 text-emerald-400 border border-emerald-500/40";
+                icon.innerHTML = '<i class="fa-solid fa-check"></i>';
+                title.innerText = "JAWABAN TEPAT!";
+                title.className = "text-xl font-bold mb-2 text-emerald-400";
+            } else {
+                playSound('wrong');
+                icon.className = "w-16 h-16 rounded-full flex items-center justify-center text-3xl mx-auto mb-3 bg-rose-500/20 text-rose-400 border border-rose-500/40";
+                icon.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+                title.innerText = "JAWABAN KURANG TEPAT";
+                title.className = "text-xl font-bold mb-2 text-rose-400";
+            }
+
+            text.innerText = qData.explanation;
+            modal.classList.remove('hidden');
+        }
+
+        function nextStageAfterQuiz() {
+            document.getElementById('feedbackModal').classList.add('hidden');
+            currentQuestionIndex++;
+
+            if (currentQuestionIndex < 10) {
+                // Lanjut ke tahap balapan nomor berikutnya
+                showScreen('raceScreen');
+                setupRaceStage();
+            } else {
+                // Kuis Selesai -> Tampilkan Nilai Akhir
+                showResultScreen();
+            }
+        }
+
+        // ========================================================
+        // HASIL AKHIR & NILAI KUIS
+        // ========================================================
+        function showResultScreen() {
+            showScreen('resultScreen');
+
+            document.getElementById('resultName').innerText = playerName;
+            
+            // Hitung Nilai Murni Kuis (Skala 0 - 100)
+            const finalQuizScore = correctAnswersCount * 10;
+            document.getElementById('finalScore').innerText = finalQuizScore;
+            document.getElementById('correctCount').innerText = correctAnswersCount;
+            document.getElementById('levelResult').innerText = currentLevel.toUpperCase();
+
+            // Predikat
+            const gradeElem = document.getElementById('finalGrade');
+            const refNote = document.getElementById('reflectionNote');
+
+            if (finalQuizScore >= 90) {
+                gradeElem.innerText = "SANGAT BAIK (A)";
+                gradeElem.className = "text-lg font-extrabold text-emerald-400 mt-2 block";
+                refNote.innerText = "Luar biasa! Kamu sangat memahami keagungan Allah Sang Pencipta dan komitmen menjaga keindahan flora, fauna, serta sesama manusia!";
+            } else if (finalQuizScore >= 75) {
+                gradeElem.innerText = "BAIK (B)";
+                gradeElem.className = "text-lg font-extrabold text-amber-300 mt-2 block";
+                refNote.innerText = "Bagus sekali! Kamu sudah memahami urutan karya ciptaan Allah. Tingkatkan terus kepedulianmu terhadap alam di sekitarmu.";
+            } else {
+                gradeElem.innerText = "CUKUP / PERLU BUKTI (C)";
+                gradeElem.className = "text-lg font-extrabold text-orange-400 mt-2 block";
+                refNote.innerText = "Mari membaca kembali Kitab Kejadian 1 dan LKPD! Allah merancang alam dengan sangat teratur dan indah untuk kita jaga.";
+            }
+        }
+
+        function restartGame() {
+            showScreen('menuScreen');
+        }
+
+        // Initialize Canvas Resize Responsiveness
+        window.addEventListener('resize', () => {
+            const containerWidth = canvas.parentElement.clientWidth;
+            if (containerWidth < 600) {
+                canvas.width = containerWidth;
+            } else {
+                canvas.width = 600;
+            }
+            drawStaticRace();
+        });
+        
+        // Initial Trigger
+        window.onload = function() {
+            const containerWidth = canvas.parentElement.clientWidth;
+            if (containerWidth < 600) {
+                canvas.width = containerWidth;
+            }
+            drawStaticRace();
+        };
+    </script>
+</body>
+</html>
